@@ -1,0 +1,203 @@
+#!/bin/bash
+
+# Country | City | ISP Domain
+
+declare -a ISPS=(
+"Germany|Aachen|rwth-aachen.de"
+"Germany|Berlin|telekom.de"
+"Germany|Frankfurt|telekom.de"
+"Germany|Munich|telekom.de"
+
+"France|Paris|orange.fr"
+"France|Lyon|orange.fr"
+"France|Marseille|orange.fr"
+
+"UK|London|bt.com"
+"UK|Manchester|bt.com"
+"UK|Birmingham|bt.com"
+
+"Netherlands|Amsterdam|kpn.com"
+"Netherlands|Rotterdam|kpn.com"
+
+"Belgium|Brussels|proximus.be"
+"Switzerland|Zurich|swisscom.ch"
+"Austria|Vienna|a1.net"
+
+"Italy|Rome|tim.it"
+"Italy|Milan|tim.it"
+"Spain|Madrid|telefonica.com"
+"Spain|Barcelona|telefonica.com"
+"Portugal|Lisbon|meo.pt"
+"Ireland|Dublin|eir.ie"
+
+"Norway|Oslo|telenor.no"
+"Sweden|Stockholm|telia.se"
+"Denmark|Copenhagen|telenor.dk"
+"Finland|Helsinki|elisa.fi"
+"Iceland|Reykjavik|siminn.is"
+
+"Poland|Warsaw|orange.pl"
+"Czech Republic|Prague|o2.cz"
+"Slovakia|Bratislava|telekom.sk"
+"Hungary|Budapest|telekom.hu"
+"Romania|Bucharest|rdsnet.ro"
+"Bulgaria|Sofia|vivacom.bg"
+"Greece|Athens|cosmote.gr"
+"Croatia|Zagreb|t.ht.hr"
+"Serbia|Belgrade|mts.rs"
+"Slovenia|Ljubljana|telekom.si"
+"Ukraine|Kyiv|ukrtelecom.ua"
+
+"Estonia|Tallinn|telia.ee"
+"Latvia|Riga|telia.lv"
+"Lithuania|Vilnius|telia.lt"
+"Luxembourg|Luxembourg|post.lu"
+"Malta|Valletta|go.com.mt"
+"Cyprus|Nicosia|cyta.com.cy"
+
+"USA|New York|verizon.com"
+"USA|Los Angeles|spectrum.com"
+"USA|Chicago|att.com"
+"USA|Dallas|att.com"
+"USA|Miami|att.com"
+"USA|Seattle|comcast.com"
+
+"Canada|Toronto|bell.ca"
+"Canada|Montreal|bell.ca"
+"Canada|Vancouver|telus.com"
+"Canada|Calgary|telus.com"
+
+"Mexico|Mexico City|telmex.com"
+"Brazil|Sao Paulo|telefonica.com.br"
+"Brazil|Rio de Janeiro|claro.com.br"
+"Argentina|Buenos Aires|telefonica.com.ar"
+"Chile|Santiago|movistar.cl"
+"Colombia|Bogota|telefonica.com.co"
+"Peru|Lima|telefonica.com.pe"
+"Uruguay|Montevideo|antel.com.uy"
+"Paraguay|Asuncion|tigo.com.py"
+"Bolivia|La Paz|entel.bo"
+"Ecuador|Quito|cnt.gob.ec"
+
+"Australia|Sydney|telstra.com"
+"Australia|Melbourne|telstra.com"
+"Australia|Brisbane|telstra.com"
+"Australia|Perth|telstra.com"
+"New Zealand|Auckland|spark.co.nz"
+"New Zealand|Wellington|spark.co.nz"
+
+"Japan|Tokyo|ntt.com"
+"Japan|Osaka|ntt.com"
+"Japan|Nagoya|kddi.com"
+
+"South Korea|Seoul|kt.com"
+"South Korea|Busan|kt.com"
+
+"China|Beijing|chinamobile.com"
+"China|Shanghai|chinamobile.com"
+"China|Guangzhou|chinatelecom.com.cn"
+
+"Hong Kong|Hong Kong|hkbn.net"
+"Taiwan|Taipei|cht.com.tw"
+
+"Singapore|Singapore|singtel.com"
+"Malaysia|Kuala Lumpur|tm.com.my"
+"Thailand|Bangkok|ais.co.th"
+"Vietnam|Hanoi|viettel.com.vn"
+"Vietnam|Ho Chi Minh City|vnpt.com.vn"
+"Indonesia|Jakarta|telkom.co.id"
+"Philippines|Manila|pldt.com"
+
+"India|Mumbai|airtel.in"
+"India|Delhi|airtel.in"
+"India|Bangalore|airtel.in"
+"Pakistan|Karachi|ptcl.com.pk"
+"Pakistan|Lahore|ptcl.com.pk"
+"Bangladesh|Dhaka|grameenphone.com"
+"Sri Lanka|Colombo|dialog.lk"
+"Nepal|Kathmandu|ntc.net.np"
+
+"Turkey|Istanbul|turkcell.com.tr"
+"Turkey|Ankara|turkcell.com.tr"
+
+"UAE|Dubai|etisalat.ae"
+"UAE|Abu Dhabi|etisalat.ae"
+"Saudi Arabia|Riyadh|stc.com.sa"
+"Saudi Arabia|Jeddah|stc.com.sa"
+"Qatar|Doha|ooredoo.qa"
+"Kuwait|Kuwait City|ooredoo.com.kw"
+"Bahrain|Manama|batelco.com"
+"Oman|Muscat|omantel.om"
+"Jordan|Amman|orange.jo"
+
+"South Africa|Johannesburg|telkom.co.za"
+"South Africa|Cape Town|telkom.co.za"
+"Egypt|Cairo|te.eg"
+"Morocco|Casablanca|maroc-telecom.ma"
+"Algeria|Algiers|algerietelecom.dz"
+"Tunisia|Tunis|tunisie-telecom.tn"
+"Kenya|Nairobi|safaricom.co.ke"
+"Nigeria|Lagos|mtn.ng"
+"Ghana|Accra|mtn.com.gh"
+"Uganda|Kampala|mtn.co.ug"
+"Tanzania|Dar es Salaam|vodacom.co.tz"
+
+"Russia|Moscow|mts.ru"
+"Russia|Saint Petersburg|rostelecom.ru"
+"Kazakhstan|Almaty|kazakhtelecom.kz"
+"Uzbekistan|Tashkent|uztelecom.uz"
+"Georgia|Tbilisi|silknet.com"
+"Armenia|Yerevan|ucom.am"
+"Azerbaijan|Baku|azercell.com"
+)
+
+for ENTRY in "${ISPS[@]}"; do
+
+IFS='|' read -r COUNTRY CITY ISP_DOMAIN <<< "$ENTRY"
+
+echo
+echo "=========================================="
+echo "Country : $COUNTRY"
+echo "City    : $CITY"
+echo "Domain  : $ISP_DOMAIN"
+echo "=========================================="
+
+echo
+echo "IPv4 DNS Servers:"
+
+dig NS "$ISP_DOMAIN" +short |
+while read -r ns; do
+
+    [ -z "$ns" ] && continue
+
+    dig A "$ns" +short |
+    while read -r ip; do
+
+        [ -n "$ip" ] && echo "  - $ip"
+
+    done
+
+done
+
+echo
+echo "IPv6 DNS Servers:"
+
+dig NS "$ISP_DOMAIN" +short |
+while read -r ns; do
+
+    [ -z "$ns" ] && continue
+
+    dig AAAA "$ns" +short |
+    while read -r ip; do
+
+        [ -n "$ip" ] && echo "  - $ip"
+
+    done
+
+done
+
+echo
+echo "Type: ISP"
+echo "------------------------------------------"
+
+done
